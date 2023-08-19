@@ -1,18 +1,21 @@
-spring:
-  application:
-    name: spring-webflux
-  webflux:
-    base-path: /api
-  data:
-    mongodb:
-      authentication-database: admin
-      uri: mongodb://localhost:27017/test
-      database: test
-
 server:
   port: 9000
   http2:
     enabled: true
+
+jwt:
+  issuer: test
+  tokens:
+    access:
+      ttl-in-seconds: 18000
+      key: cc10fvfvfvfvfvfvfvfvf7fac334aad2brrrbrc250fcdb85bf8vfvfv40f55f446ec34c1f27e669fbrbrbr898395b05796a
+    refresh:
+      ttl-in-seconds: 18000
+      key: 33vfvfv8f4be5ffvfvfvfvfvfvfvd668b59brbbrd344cc859e6c1vfvfa2f063541d9ddadd8f151dc5cb88e76be1e
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
 
 logging:
   level:
