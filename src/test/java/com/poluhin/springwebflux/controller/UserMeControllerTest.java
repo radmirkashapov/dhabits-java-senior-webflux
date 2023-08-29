@@ -11,7 +11,7 @@ public class UserMeControllerTest extends AbstractTest {
 
 
     @Test
-    public void shouldReturnUserData() throws Exception {
+    public void shouldReturnUserData() {
 
         // language=JSON5
         String requestBody = """
@@ -45,7 +45,7 @@ public class UserMeControllerTest extends AbstractTest {
 
     @Test
     @WithMockUser(username = "user", roles = {"ADMIN"})
-    public void shouldThrow403() throws Exception {
+    public void shouldThrow403() {
         client
                 .get()
                 .uri("/user/me")

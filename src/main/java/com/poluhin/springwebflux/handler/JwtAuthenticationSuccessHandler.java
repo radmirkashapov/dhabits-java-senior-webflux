@@ -3,6 +3,8 @@ package com.poluhin.springwebflux.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poluhin.springwebflux.service.JwtService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -15,6 +17,8 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import reactor.core.publisher.Mono;
 
+import static com.poluhin.springwebflux.config.MetricConsts.AUTH_SUCCESS;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
@@ -22,6 +26,8 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
     private final ObjectMapper objectMapper;
 
     private final JwtService jwtService;
+
+    private final Counter authSuccessCounter = Metrics.counter(AUTH_SUCCESS);
 
 
     @Override
@@ -41,6 +47,7 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
 
             DataBuffer dataBuffer = response.bufferFactory().wrap(tokens);
 
+            authSuccessCounter.increment();
             return response.writeWith(Mono.just(dataBuffer));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
