@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poluhin.springwebflux.converter.AuthRequestConverter;
 import com.poluhin.springwebflux.converter.JwtAuthConverter;
 import com.poluhin.springwebflux.handler.BearerAuthorizationManager;
+import com.poluhin.springwebflux.handler.JwtAuthenticationFailureHandler;
 import com.poluhin.springwebflux.handler.JwtAuthenticationSuccessHandler;
 import com.poluhin.springwebflux.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -31,6 +33,7 @@ public class WebSecurityConfig {
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtAuthenticationFailureHandler jwtAuthenticationFailureHandler;
 
     private final String[] swaggerPaths = new String[]{
             "/webjars/swagger-ui/index.html",
@@ -52,6 +55,7 @@ public class WebSecurityConfig {
 
         AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(authenticationManager);
         authenticationFilter.setServerAuthenticationConverter(authRequestConverter);
+        authenticationFilter.setAuthenticationFailureHandler(jwtAuthenticationFailureHandler);
         authenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(objectMapper, jwtService));
         authenticationFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/login"));
 
@@ -65,6 +69,8 @@ public class WebSecurityConfig {
                 .authorizeExchange((authorize) ->
                         authorize
                                 .pathMatchers("/resource", "/resource/**").permitAll()
+                                .pathMatchers("/exception-test").permitAll()
+                                .pathMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                                 .pathMatchers(swaggerPaths).permitAll()
                                 .anyExchange().authenticated())
                 .addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
